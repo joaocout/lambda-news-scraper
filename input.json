@@ -1,0 +1,17 @@
+[
+  {
+    "url": "https://www.saude.df.gov.br/noticias",
+    "xpath": "//h4/a",
+    "terms": ["carnaval", "secretaria"]
+  },
+  {
+    "url": "https://blog.grancursosonline.com.br/concursos/centro-oeste/distrito-federal/",
+    "xpath": "//h2/a",
+    "terms": ["vaga"]
+  },
+  {
+    "url": "https://passageirodeprimeira.com/",
+    "xpath": "//h1[@class='article--title']/a",
+    "terms": ["maceió"]
+  }
+]
