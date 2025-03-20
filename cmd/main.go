@@ -70,7 +70,8 @@ func scrapeBy(params []scrapeParams) (ret map[string]string) {
 }
 
 // receives and deletes single message
-// filters out items older than 30 days in message
+// filters out items older than 30 days before returning
+// so that these messages dont get added again to the queue
 func getFromQueue(client *sqs.Client, queueUrl string) (ret map[string]string) {
 	data, err := client.ReceiveMessage(context.TODO(), &sqs.ReceiveMessageInput{
 		QueueUrl:            &queueUrl,
@@ -108,11 +109,13 @@ func getFromQueue(client *sqs.Client, queueUrl string) (ret map[string]string) {
 	return
 }
 
-// formats each new: md5(link)_date
-// and sends the formatted result
+// formatts map of link:date and sends to queue
 func sendToQueue(sqsClient *sqs.Client, queueUrl string, news map[string]string, prev map[string]string) {
 	formattedNews := make(map[string]string)
 	date := time.Now().Format(time.DateOnly)
+
+	// possible to hash links to save space and get
+	// predictable space use ~ 6000 (links:date) in the same sqs message if using md5
 	for k := range news {
 		formattedNews[k] = date
 	}
