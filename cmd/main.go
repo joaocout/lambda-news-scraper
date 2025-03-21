@@ -12,6 +12,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -50,20 +51,41 @@ func readParams(path string) (ret []scrapeParams) {
 	return
 }
 
-func scrapeBy(params []scrapeParams) (ret map[string]string) {
-	c := colly.NewCollector()
+func scrapeBy(paramsList []scrapeParams) (ret map[string]string) {
+	c := colly.NewCollector(colly.Async(true))
 	c.WithTransport(&http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	})
+	c.Limit(&colly.LimitRule{
+		DomainGlob:  "*",
+		Parallelism: 8,
+	})
 
 	ret = make(map[string]string)
-	for _, s := range params {
-		c.OnXML(s.Xpath, func(e *colly.XMLElement) {
-			if util.StringContainsAnyOf(e.Text, s.Terms) {
-				ret[e.Attr("href")] = e.Text
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	for _, p := range paramsList {
+		wg.Add(1)
+		params := p
+
+		go func() {
+			defer wg.Done()
+
+			c.OnXML(params.Xpath, func(e *colly.XMLElement) {
+				if util.StringContainsAnyOf(e.Text, params.Terms) {
+					mu.Lock()
+					ret[e.Attr("href")] = e.Text
+					mu.Unlock()
+				}
+			})
+
+			err := c.Visit(params.Url)
+			if err != nil {
+				log.Fatalf("error visiting %s: %v", params.Url, err)
 			}
-		})
-		c.Visit(s.Url)
+		}()
+		c.Wait()
+		wg.Wait()
 	}
 
 	return
