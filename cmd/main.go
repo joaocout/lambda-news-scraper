@@ -73,7 +73,6 @@ func scrapeBy(paramsList []scrapeParams) (ret map[string]string, err error) {
 
 		go func() {
 			defer wg.Done()
-
 			c.OnXML(params.Xpath, func(e *colly.XMLElement) {
 				if util.StringContainsAnyOf(e.Text, params.Terms) {
 					mu.Lock()
@@ -87,10 +86,9 @@ func scrapeBy(paramsList []scrapeParams) (ret map[string]string, err error) {
 				log.Fatalf("error visiting %s: %v", params.Url, err)
 			}
 		}()
-		c.Wait()
-		wg.Wait()
 	}
-
+	c.Wait()
+	wg.Wait()
 	return
 }
 
