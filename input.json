@@ -2,7 +2,7 @@
   {
     "url": "https://www.saude.df.gov.br/noticias",
     "xpath": "//h4/a",
-    "terms": ["carnaval", "secretaria"]
+    "terms": ["pesquisa"]
   },
   {
     "url": "https://blog.grancursosonline.com.br/concursos/centro-oeste/distrito-federal/",
@@ -12,6 +12,6 @@
   {
     "url": "https://passageirodeprimeira.com/",
     "xpath": "//h1[@class='article--title']/a",
-    "terms": ["maceió"]
+    "terms": ["livelo"]
   }
 ]

@@ -1,6 +1,11 @@
 package util
 
-import "strings"
+import (
+	"crypto/md5"
+	"encoding/hex"
+	"fmt"
+	"strings"
+)
 
 func StringContainsAnyOf(s string, terms []string) bool {
 	for _, t := range terms {
@@ -9,6 +14,16 @@ func StringContainsAnyOf(s string, terms []string) bool {
 		}
 	}
 	return false
+}
+
+func HashAndTruncateBy(s string, t int) (string, error) {
+	hasher := md5.New()
+	_, err := hasher.Write([]byte(s))
+
+	if err != nil {
+		return "", fmt.Errorf("error writing to hasher: %v", err)
+	}
+	return hex.EncodeToString(hasher.Sum(nil))[:10], nil
 }
 
 // func LFilter[T any](ss []T, test func(T) bool) (ret []T) {
@@ -20,17 +35,19 @@ func StringContainsAnyOf(s string, terms []string) bool {
 // 	return
 // }
 
-// func LMap[T any, R any](ss []T, f func(T) R) (ret []R) {
+// func LMap[T, R any](ss []T, f func(T) R) (ret []R) {
 // 	for _, s := range ss {
 // 		ret = append(ret, f(s))
 // 	}
 // 	return
 // }
 
-func MFilter[K comparable, V any](m map[K]V, test func(K, V) bool) (ret map[K]V) {
+func MFilter[K comparable, V any](m map[K]V, test func(K, V) (bool, error)) (ret map[K]V, err error) {
 	ret = make(map[K]V)
 	for k, v := range m {
-		if test(k, v) {
+		if ok, err := test(k, v); err != nil {
+			return nil, fmt.Errorf("error in map filter test function: %v", err)
+		} else if ok {
 			ret[k] = v
 		}
 	}
