@@ -66,28 +66,22 @@ func scrapeBy(paramsList []scrapeParams) (ret map[string]string, err error) {
 
 	ret = make(map[string]string)
 	var mu sync.Mutex
-	var wg sync.WaitGroup
 	for _, p := range paramsList {
-		wg.Add(1)
 		params := p
 
-		go func() {
-			defer wg.Done()
-			c.OnXML(params.Xpath, func(e *colly.XMLElement) {
-				if util.StringContainsAnyOf(e.Text, params.Terms) {
-					mu.Lock()
-					ret[e.Attr("href")] = e.Text
-					mu.Unlock()
-				}
-			})
-
-			err := c.Visit(params.Url)
-			if err != nil {
-				log.Fatalf("error visiting %s: %v", params.Url, err)
+		c.OnXML(params.Xpath, func(e *colly.XMLElement) {
+			if util.StringContainsAnyOf(e.Text, params.Terms) {
+				mu.Lock()
+				ret[e.Attr("href")] = e.Text
+				mu.Unlock()
 			}
-		}()
+		})
+
+		err := c.Visit(params.Url)
+		if err != nil {
+			log.Fatalf("error visiting %s: %v", params.Url, err)
+		}
 	}
-	wg.Wait()
 	c.Wait()
 	return
 }
