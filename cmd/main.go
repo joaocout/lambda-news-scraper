@@ -87,8 +87,8 @@ func scrapeBy(paramsList []scrapeParams) (ret map[string]string, err error) {
 			}
 		}()
 	}
-	c.Wait()
 	wg.Wait()
+	c.Wait()
 	return
 }
 
