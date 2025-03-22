@@ -23,24 +23,8 @@ func HashAndTruncateBy(s string, t int) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error writing to hasher: %v", err)
 	}
-	return hex.EncodeToString(hasher.Sum(nil))[:10], nil
+	return hex.EncodeToString(hasher.Sum(nil))[:t], nil
 }
-
-// func LFilter[T any](ss []T, test func(T) bool) (ret []T) {
-// 	for _, s := range ss {
-// 		if test(s) {
-// 			ret = append(ret, s)
-// 		}
-// 	}
-// 	return
-// }
-
-// func LMap[T, R any](ss []T, f func(T) R) (ret []R) {
-// 	for _, s := range ss {
-// 		ret = append(ret, f(s))
-// 	}
-// 	return
-// }
 
 func MFilter[K comparable, V any](m map[K]V, test func(K, V) (bool, error)) (ret map[K]V, err error) {
 	ret = make(map[K]V)
