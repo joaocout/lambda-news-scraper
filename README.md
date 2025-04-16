@@ -1,3 +1,3 @@
 # lambda-news-scraper
 
-scrapes links from pages, filters based on lists of terms and sends the resulting items to an email. runs on aws lambda and uses a sqs queue to avoid repeating results.
+etracts links from web pages, filters them by keyword lists, and emails the results. runs on aws lambda and uses a aws sqs to prevent duplicates.
